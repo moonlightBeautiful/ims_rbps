@@ -6,7 +6,7 @@ public class User {
 	private String userName;
 	private String password;
 	private int userType;
-	private int roleId;
+	private int roleId=-1;
 	private String roleName;
 	private String userDescription;
 	

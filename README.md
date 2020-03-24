@@ -11,4 +11,6 @@
     1.验证码
     2.easyui树菜单 
     3.主页面请求过滤
-    4.
+    4.超链接执行js方法 href="javascript:searchUser()"
+    5.input text的回车事件 onkeydown="if(event.keyCode==13) searchUser()"
+    6.分页实体类的start计算=(page-1)*rows

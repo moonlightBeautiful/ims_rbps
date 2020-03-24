@@ -2,14 +2,18 @@ package com.ims.web;
 
 import com.ims.dao.RoleDao;
 import com.ims.dao.UserDao;
+import com.ims.model.PageBean;
 import com.ims.model.User;
 import com.ims.util.DbUtil;
+import com.ims.util.JsonUtil;
 import com.ims.util.ResponseUtil;
 import com.ims.util.StringUtil;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.ResultSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -47,8 +51,9 @@ public class UserServlet extends HttpServlet {
             logout(request, response);
         } else if ("modifyPassword".equals(action)) {
             modifyPassword(request, response);
+        } else if ("list".equals(action)) {
+            list(request, response);
         }
-
     }
 
     private void login(HttpServletRequest request, HttpServletResponse response)
@@ -126,6 +131,42 @@ public class UserServlet extends HttpServlet {
                 result.put("success", "true");
                 result.put("errorMsg", "–ﬁ∏ƒ√‹¬Î ß∞‹£°");
             }
+            ResponseUtil.write(response, result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                dbUtil.closeCon(con);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void list(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String page = request.getParameter("page");
+        String rows = request.getParameter("rows");
+        User user = new User();
+        String s_userName = request.getParameter("s_userName");
+        String s_roleId = request.getParameter("s_roleId");
+        if (StringUtil.isNotEmpty(s_userName)) {
+            user.setUserName(s_userName);
+        }
+        if (StringUtil.isNotEmpty(s_roleId)) {
+            user.setRoleId(Integer.parseInt(s_roleId));
+        }
+        PageBean pageBean = new PageBean(Integer.parseInt(page), Integer.parseInt(rows));
+        Connection con = null;
+        try {
+            con = dbUtil.getCon();
+            JSONObject result = new JSONObject();
+            ResultSet rs = userDao.userList(con, pageBean, user);
+            JSONArray jsonArray = JsonUtil.formatRsToJsonArray(rs);
+            int total = userDao.userCount(con, user);
+            result.put("rows", jsonArray);
+            result.put("total", total);
             ResponseUtil.write(response, result);
         } catch (Exception e) {
             e.printStackTrace();

@@ -52,7 +52,7 @@
             if ($("#tabs").tabs("exists", node.text)) {
                 $("#tabs").tabs("select", node.text);
             } else {
-                var content = "<iframe frameborder=0 scrolling='auto' style='width=100%;height=100%' src=" + node.attributes.authPath + "></iframe>";
+                var content = "<iframe frameborder=0 scrolling='auto' style='width:100%;height:100%' src=" + node.attributes.authPath + "></iframe>";
                 $("#tabs").tabs("add", {
                     title: node.text,
                     iconCls: node.iconCls,
@@ -119,7 +119,7 @@
         </div>
     </div>
 </div>
-<div region="west" style="width: 160px;padding: 5px;" title="导航菜单" split="true">
+<div region="west" style="width: 220px;padding: 5px;" title="导航菜单" split="true">
     <ul id="tree" class="easyui-tree"></ul>
 </div>
 <div region="south" style="height: 25px;padding: 5px;" align="center">

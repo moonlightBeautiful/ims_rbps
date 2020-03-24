@@ -1,6 +1,8 @@
 package com.ims.dao;
 
+import com.ims.model.PageBean;
 import com.ims.model.User;
+import com.ims.util.StringUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -32,5 +34,38 @@ public class UserDao {
         pstmt.setString(1, user.getPassword());
         pstmt.setInt(2, user.getUserId());
         return pstmt.executeUpdate();
+    }
+
+    public ResultSet userList(Connection con, PageBean pageBean, User user) throws Exception {
+        StringBuffer sb = new StringBuffer("select * from t_user u ,t_role r where u.roleId=r.roleId and u.userType != 1 ");
+        if (StringUtil.isNotEmpty(user.getUserName())) {
+            sb.append(" and u.userName like '%" + user.getUserName() + "%'");
+        }
+        if (user.getRoleId() != -1) {
+            sb.append(" and u.roleId=" + user.getRoleId());
+        }
+        if (pageBean != null) {
+            sb.append(" limit " + pageBean.getStart() + "," + pageBean.getRows());
+        }
+        PreparedStatement pstmt = con.prepareStatement(sb.toString());
+        return pstmt.executeQuery();
+    }
+
+
+    public int userCount(Connection con, User user) throws Exception {
+        StringBuffer sb = new StringBuffer("select count(*) as total from t_user u ,t_role r where u.roleId=r.roleId and u.userType!=1 ");
+        if (StringUtil.isNotEmpty(user.getUserName())) {
+            sb.append(" and u.userName like '%" + user.getUserName() + "%'");
+        }
+        if (user.getRoleId() != -1) {
+            sb.append(" and u.roleId=" + user.getRoleId());
+        }
+        PreparedStatement pstmt = con.prepareStatement(sb.toString());
+        ResultSet rs = pstmt.executeQuery();
+        if (rs.next()) {
+            return rs.getInt("total");
+        } else {
+            return 0;
+        }
     }
 }
