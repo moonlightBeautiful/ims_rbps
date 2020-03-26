@@ -104,6 +104,13 @@ INSERT INTO t_role
 VALUES (9, '学生', '', '你懂的');
 INSERT INTO t_role
 VALUES (18, '辅导员', '', '略');
+insert into `t_role`(`roleId`, `roleName`, `authIds`, `roleDescription`)
+values (19, 'A', NULL, NULL),
+       (20, 'B', NULL, NULL),
+       (21, 'C', NULL, NULL),
+       (22, 'D', NULL, NULL),
+       (23, 'E', NULL, NULL),
+       (24, 'F', NULL, NULL);
 
 
 

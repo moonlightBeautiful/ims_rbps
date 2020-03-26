@@ -9,6 +9,14 @@
     <script type="text/javascript" src="jquery-easyui-1.9.4/jquery.easyui.min.js"></script>
     <script type="text/javascript" src="jquery-easyui-1.9.4/locale/easyui-lang-zh_CN.js"></script>
     <script type="text/javascript">
+        $(function () {
+            $("#dg2").datagrid({
+                onDblClickRow: function (rowIndex, rowData) {
+                    chooseRole();
+                }
+            });
+        })
+
         var url;
 
         function searchUser() {
@@ -20,7 +28,7 @@
 
         function openUserAddDialog() {
             $("#dlg").dialog("open").dialog("setTitle", "添加用户信息");
-            $("#userName").attr("disabled", false);
+            $("#userName").attr("readonly", false);
             url = "user?action=save";
         }
 
@@ -49,17 +57,77 @@
             });
         }
 
-        function openUserModifyDialog(){
-            var selectedRows=$("#dg").datagrid('getSelections');
-            if(selectedRows.length!=1){
-                $.messager.alert('系统提示','请选择一条要编辑的数据！');
+        function openUserModifyDialog() {
+            var selectedRows = $("#dg").datagrid('getSelections');
+            if (selectedRows.length != 1) {
+                $.messager.alert('系统提示', '请选择一条要编辑的数据！');
                 return;
             }
-            var row=selectedRows[0];
-            $("#dlg").dialog("open").dialog("setTitle","修改用户信息");
-            $("#fm").form("load",row);
-            $("#userName").attr("disabled",true);
-            url="user?action=save&userId="+row.userId;
+            var row = selectedRows[0];
+            $("#dlg").dialog("open").dialog("setTitle", "修改用户信息");
+            $("#fm").form("load", row);
+            $("#userName").attr("readonly", true);
+            url = "user?action=save&userId=" + row.userId;
+        }
+
+        function openRoleChooseDialog() {
+            $("#dlg2").dialog("open").dialog("setTitle", "选择角色");
+        }
+
+        function searchRole() {
+            $('#dg2').datagrid('load', {
+                s_roleName: $("#s_roleName").val()
+            });
+        }
+
+        function closeRoleDialog() {
+            $("#s_roleName").val("");
+            $('#dg2').datagrid('load', {
+                s_roleName: ""
+            });
+            $("#dlg2").dialog("close");
+        }
+
+        function chooseRole() {
+            var selectedRows = $("#dg2").datagrid('getSelections');
+            if (selectedRows.length != 1) {
+                $.messager.alert('系统提示', '请选择一个角色！');
+                return;
+            }
+            var row = selectedRows[0];
+            $("#roleId").val(row.roleId);
+            $("#roleName").val(row.roleName);
+            closeRoleDialog();
+        }
+
+        function deleteUser() {
+            var selectedRows = $("#dg").datagrid('getSelections');
+            if (selectedRows.length == 0) {
+                $.messager.alert('系统提示', '请选择要删除的数据！');
+                return;
+            }
+            var strIds = [];
+            for (var i = 0; i < selectedRows.length; i++) {
+                strIds.push(selectedRows[i].userId);
+            }
+            var ids = strIds.join(",");
+            $.messager.confirm("系统提示", "您确认要删除这<font color=red>" + selectedRows.length + "</font>条数据吗？", function (r) {
+                if (r) {
+                    $.post(
+                        "user?action=delete",
+                        {delIds: ids},
+                        function (result) {
+                            if (result.success) {
+                                $.messager.alert('系统提示', "您已成功删除<font color=red>" + result.delNums + "</font>条数据！");
+                                $("#dg").datagrid("reload");
+                            } else {
+                                $.messager.alert('系统提示', result.errorMsg);
+                            }
+                        },
+                        "json"
+                    );
+                }
+            });
         }
     </script>
 </head>
@@ -82,7 +150,7 @@
     <div>
         <a href="javascript:openUserAddDialog()" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
         <a href="javascript:openUserModifyDialog()" class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a>
-        <a href="" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+        <a href="javascript:deleteUser()" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
     </div>
     <div>
         &nbsp;用户名：&nbsp;
@@ -106,11 +174,12 @@
                 <td><input type="text" id="password" name="password" class="easyui-validatebox" required="true"/></td>
             </tr>
             <tr>
-                <td>角色ID：</td>
-                <td><input type="text" id="roleId" name="roleId"/></td>
-                <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                <input type="hidden" id="roleId" name="roleId"/>
                 <td>角色名称：</td>
-                <td><input type="text" id="roleName" name="roleName" class="easyui-validatebox" required="true"/></td>
+                <td><input type="text" id="roleName" name="roleName" readonly="readonly"
+                           class="easyui-validatebox" required="true"/></td>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                <td colspan="2"><a href="javascript:openRoleChooseDialog()" class="easyui-linkbutton">选择角色</a></td>
             </tr>
             <tr>
                 <td valign="top">备注：</td>
@@ -121,10 +190,35 @@
         </table>
     </form>
 </div>
-
 <div id="dlg-buttons">
     <a href="javascript:saveUser()" class="easyui-linkbutton" iconCls="icon-ok">保存</a>
     <a href="javascript:closeUserAddDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+</div>
+
+<!-- 选择角色弹框 -->
+<div id="dlg2" class="easyui-dialog" iconCls="icon-search" style="width: 500px;height: 480px;padding: 10px 20px"
+     closed="true" buttons="#dlg2-buttons">
+    <div style="height: 40px;" align="center">
+        角色名称：
+        <input type="text" id="s_roleName" name="s_roleName" onkeydown="if(event.keyCode==13) searchRole()"/>
+        <a href="javascript:searchRole()" class="easyui-linkbutton" iconCls="icon-search" plain="true">搜索</a>
+    </div>
+    <div style="height: 350px;">
+        <table id="dg2" title="查询结果" class="easyui-datagrid" fitColumns="true"
+               pagination="true" rownumbers="true" url="role?action=list" singleSelect="true" fit="true">
+            <thead>
+            <tr>
+                <th field="roleId" width="50" align="center">编号</th>
+                <th field="roleName" width="100" align="center">角色名称</th>
+                <th field="roleDescription" width="200" align="center">备注</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+<div id="dlg2-buttons">
+    <a href="javascript:chooseRole()" class="easyui-linkbutton" iconCls="icon-ok">确定</a>
+    <a href="javascript:closeRoleDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
 </div>
 </body>
 </html>

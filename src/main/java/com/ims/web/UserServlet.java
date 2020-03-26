@@ -55,6 +55,8 @@ public class UserServlet extends HttpServlet {
             list(request, response);
         } else if ("save".equals(action)) {
             save(request, response);
+        } else if ("delete".equals(action)) {
+            delete(request, response);
         }
     }
 
@@ -216,6 +218,33 @@ public class UserServlet extends HttpServlet {
                 result.put("errorMsg", "±£´æÊ§°Ü");
             } else {
                 result.put("success", true);
+            }
+            ResponseUtil.write(response, result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                dbUtil.closeCon(con);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void delete(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String delIds = request.getParameter("delIds");
+        Connection con = null;
+        try {
+            con = dbUtil.getCon();
+            JSONObject result = new JSONObject();
+            int delNums = userDao.userDelete(con, delIds);
+            if (delNums > 0) {
+                result.put("success", true);
+                result.put("delNums", delNums);
+            } else {
+                result.put("errorMsg", "É¾³ýÊ§°Ü");
             }
             ResponseUtil.write(response, result);
         } catch (Exception e) {

@@ -97,4 +97,10 @@ public class UserDao {
         pstmt.setString(1, userName);
         return pstmt.executeQuery().next();
     }
+
+    public int userDelete(Connection con, String delIds) throws Exception {
+        String sql = "delete from t_user where userId in (" + delIds + ")";
+        PreparedStatement pstmt = con.prepareStatement(sql);
+        return pstmt.executeUpdate();
+    }
 }
