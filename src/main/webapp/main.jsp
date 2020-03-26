@@ -123,8 +123,9 @@
     <ul id="tree" class="easyui-tree"></ul>
 </div>
 <div region="south" style="height: 25px;padding: 5px;" align="center">
-    版权所有 2013 Java知识分享网 <a href="http://www.java1234.com" target="_blank">www.java1234.com</a>
+    版权所有 2020 java知识学习网 <a href="javascript:alert('版权归高旭所有！');">版权归高旭所有！！！</a>
 </div>
+<!-- 更改密码弹框 -->
 <div id="dlg" class="easyui-dialog" style="width: 400px;height: 220px;padding: 10px 20px"
      closed="true" buttons="#dlg-buttons" data-options="iconCls:'icon-modifyPassword'">
     <form id="fm" method="post">
@@ -153,5 +154,7 @@
     <a href="javascript:modifyPassword()" class="easyui-linkbutton" iconCls="icon-ok">保存</a>
     <a href="javascript:closePasswordModifyDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
 </div>
+
+
 </body>
 </html>

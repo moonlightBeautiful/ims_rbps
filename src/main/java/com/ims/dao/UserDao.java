@@ -68,4 +68,33 @@ public class UserDao {
             return 0;
         }
     }
+
+    public int userAdd(Connection con, User user) throws Exception {
+        String sql = "insert into t_user values(null,?,?,2,?,?)";
+        PreparedStatement pstmt = con.prepareStatement(sql);
+        pstmt.setString(1, user.getUserName());
+        pstmt.setString(2, user.getPassword());
+        pstmt.setInt(3, user.getRoleId());
+        pstmt.setString(4, user.getUserDescription());
+        return pstmt.executeUpdate();
+    }
+
+    public int userUpdate(Connection con, User user) throws Exception {
+        String sql = "update t_user set userName=?,password=?,roleId=?,userDescription=? where userId=?";
+        PreparedStatement pstmt = con.prepareStatement(sql);
+        pstmt.setString(1, user.getUserName());
+        pstmt.setString(2, user.getPassword());
+        pstmt.setInt(3, user.getRoleId());
+        pstmt.setString(4, user.getUserDescription());
+        pstmt.setInt(5, user.getUserId());
+        return pstmt.executeUpdate();
+    }
+
+
+    public boolean existUserWithUserName(Connection con, String userName) throws Exception {
+        String sql = "select * from t_user where userName=?";
+        PreparedStatement pstmt = con.prepareStatement(sql);
+        pstmt.setString(1, userName);
+        return pstmt.executeQuery().next();
+    }
 }

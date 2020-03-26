@@ -9,11 +9,57 @@
     <script type="text/javascript" src="jquery-easyui-1.9.4/jquery.easyui.min.js"></script>
     <script type="text/javascript" src="jquery-easyui-1.9.4/locale/easyui-lang-zh_CN.js"></script>
     <script type="text/javascript">
+        var url;
+
         function searchUser() {
             $('#dg').datagrid('load', {
                 s_userName: $("#s_userName").val(),
                 s_roleId: $('#s_roleId').combobox("getValue")
             });
+        }
+
+        function openUserAddDialog() {
+            $("#dlg").dialog("open").dialog("setTitle", "添加用户信息");
+            $("#userName").attr("disabled", false);
+            url = "user?action=save";
+        }
+
+        function closeUserAddDialog() {
+            $("#dlg").dialog("close");
+            $("#fm").form('clear');
+        }
+
+        function saveUser() {
+            $("#fm").form("submit", {
+                url: url,
+                onSubmit: function () {
+                    return $(this).form("validate");
+                },
+                success: function (result) {
+                    var result = eval('(' + result + ')');
+                    if (result.errorMsg) {
+                        $.messager.alert('系统提示', "<font color=red>" + result.errorMsg + "</font>");
+                        return;
+                    } else {
+                        $.messager.alert('系统提示', '保存成功');
+                        closeUserAddDialog();
+                        $("#dg").datagrid("reload");
+                    }
+                }
+            });
+        }
+
+        function openUserModifyDialog(){
+            var selectedRows=$("#dg").datagrid('getSelections');
+            if(selectedRows.length!=1){
+                $.messager.alert('系统提示','请选择一条要编辑的数据！');
+                return;
+            }
+            var row=selectedRows[0];
+            $("#dlg").dialog("open").dialog("setTitle","修改用户信息");
+            $("#fm").form("load",row);
+            $("#userName").attr("disabled",true);
+            url="user?action=save&userId="+row.userId;
         }
     </script>
 </head>
@@ -34,8 +80,8 @@
 </table>
 <div id="tb">
     <div>
-        <a href="" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
-        <a href="" class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a>
+        <a href="javascript:openUserAddDialog()" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
+        <a href="javascript:openUserModifyDialog()" class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a>
         <a href="" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
     </div>
     <div>
@@ -46,6 +92,39 @@
                data-options="editable:false,panelHeight:'auto',valueField:'roleId',textField:'roleName',url:'role?action=comBoList'"/>
         <a href="javascript:searchUser()" class="easyui-linkbutton" iconCls="icon-search" plain="true">搜索</a>
     </div>
+</div>
+<!-- 添加用户弹窗 -->
+<div id="dlg" class="easyui-dialog" style="width: 570px;height: 350px;padding: 10px 20px"
+     closed="true" buttons="#dlg-buttons">
+    <form id="fm" method="post">
+        <table cellspacing="5px;">
+            <tr>
+                <td>用户名：</td>
+                <td><input type="text" id="userName" name="userName" class="easyui-validatebox" required="true"/></td>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                <td>用户密码：</td>
+                <td><input type="text" id="password" name="password" class="easyui-validatebox" required="true"/></td>
+            </tr>
+            <tr>
+                <td>角色ID：</td>
+                <td><input type="text" id="roleId" name="roleId"/></td>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                <td>角色名称：</td>
+                <td><input type="text" id="roleName" name="roleName" class="easyui-validatebox" required="true"/></td>
+            </tr>
+            <tr>
+                <td valign="top">备注：</td>
+                <td colspan="4">
+                    <textarea rows="7" cols="50" name="userDescription" id="userDescription"></textarea>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="dlg-buttons">
+    <a href="javascript:saveUser()" class="easyui-linkbutton" iconCls="icon-ok">保存</a>
+    <a href="javascript:closeUserAddDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
 </div>
 </body>
 </html>

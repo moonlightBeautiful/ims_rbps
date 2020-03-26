@@ -53,6 +53,8 @@ public class UserServlet extends HttpServlet {
             modifyPassword(request, response);
         } else if ("list".equals(action)) {
             list(request, response);
+        } else if ("save".equals(action)) {
+            save(request, response);
         }
     }
 
@@ -167,6 +169,54 @@ public class UserServlet extends HttpServlet {
             int total = userDao.userCount(con, user);
             result.put("rows", jsonArray);
             result.put("total", total);
+            ResponseUtil.write(response, result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                dbUtil.closeCon(con);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void save(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String userName = request.getParameter("userName");
+        String password = request.getParameter("password");
+        String roleId = request.getParameter("roleId");
+        String userDescription = request.getParameter("userDescription");
+        String userId = request.getParameter("userId");
+        User user = new User(userName, password, Integer.parseInt(roleId), userDescription);
+        if (StringUtil.isNotEmpty(userId)) {
+            user.setUserId(Integer.parseInt(userId));
+        }
+        Connection con = null;
+        try {
+            JSONObject result = new JSONObject();
+            con = dbUtil.getCon();
+            int saveNums = 0;
+            //更新 添加（验证用户名是否存在）
+            if (StringUtil.isNotEmpty(userId)) {
+                saveNums = userDao.userUpdate(con, user);
+            } else {
+                if (userDao.existUserWithUserName(con, userName)) {
+                    saveNums = -1;
+                } else {
+                    saveNums = userDao.userAdd(con, user);
+                }
+            }
+            if (saveNums == -1) {
+                result.put("success", true);
+                result.put("errorMsg", "此用户名已经存在");
+            } else if (saveNums == 0) {
+                result.put("success", true);
+                result.put("errorMsg", "保存失败");
+            } else {
+                result.put("success", true);
+            }
             ResponseUtil.write(response, result);
         } catch (Exception e) {
             e.printStackTrace();
