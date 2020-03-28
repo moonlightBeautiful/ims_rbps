@@ -75,4 +75,10 @@ public class RoleDao {
             return 0;
         }
     }
+
+    public int roleDelete(Connection con, String delIds) throws Exception {
+        String sql = "delete from t_role where roleId in (" + delIds + ")";
+        PreparedStatement pstmt = con.prepareStatement(sql);
+        return pstmt.executeUpdate();
+    }
 }

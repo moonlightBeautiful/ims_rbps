@@ -103,4 +103,11 @@ public class UserDao {
         PreparedStatement pstmt = con.prepareStatement(sql);
         return pstmt.executeUpdate();
     }
+
+    public boolean existUserWithRoleId(Connection con, String roleId) throws Exception {
+        String sql = "select * from t_user where roleId=?";
+        PreparedStatement pstmt = con.prepareStatement(sql);
+        pstmt.setString(1, roleId);
+        return pstmt.executeQuery().next();
+    }
 }

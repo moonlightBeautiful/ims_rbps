@@ -1,9 +1,69 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>角色管理</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>角色管理</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.9.4/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.9.4/themes/icon.css">
+    <script type="text/javascript" src="jquery-easyui-1.9.4/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.9.4/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.9.4/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript">
+        function searchRole() {
+            $('#dg').datagrid('load', {
+                s_roleName: $("#s_roleName").val()
+            });
+        }
+
+        function deleteRole() {
+            var selectedRows = $("#dg").datagrid('getSelections');
+            if (selectedRows.length == 0) {
+                $.messager.alert('系统提示', '请选择要删除的数据！');
+                return;
+            }
+            var strIds = [];
+            for (var i = 0; i < selectedRows.length; i++) {
+                strIds.push(selectedRows[i].roleId);
+            }
+            var ids = strIds.join(",");
+            $.messager.confirm("系统提示", "您确认要删除这<font color=red>" + selectedRows.length + "</font>条数据吗？", function (r) {
+                if (r) {
+                    $.post("role?action=delete", {delIds: ids}, function (result) {
+                        if (result.success) {
+                            $.messager.alert('系统提示', "您已成功删除<font color=red>" + result.delNums + "</font>条数据！");
+                            $("#dg").datagrid("reload");
+                        } else {
+                            $.messager.alert('系统提示', '<font color=red>' + selectedRows[result.errorIndex].roleName + '</font>' + result.errorMsg);
+                        }
+                    }, "json");
+                }
+            });
+        }
+    </script>
 </head>
-<body>
+<body style="margin: 1px;">
+<table id="dg" title="角色管理" class="easyui-datagrid" fitColumns="true"
+       pagination="true" rownumbers="true" url="role?action=list" fit="true" toolbar="#tb">
+    <thead>
+    <tr>
+        <th field="cb" checkbox="true" align="center"></th>
+        <th field="roleId" width="50" align="center">编号</th>
+        <th field="roleName" width="100" align="center">角色名称</th>
+        <th field="roleDescription" width="200" align="center">备注</th>
+    </tr>
+    </thead>
+</table>
+<div id="tb">
+    <div>
+        <a href="javascript:openRoleAddDialog()" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
+        <a href="javascript:openRoleModifyDialog()" class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a>
+        <a href="javascript:deleteRole()" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+        <a href="javascript:" class="easyui-linkbutton" iconCls="icon-roleManage" plain="true">角色授权</a>
+    </div>
+    <div>
+        &nbsp;角色名称：&nbsp;<input type="text" name="s_roleName" id="s_roleName" size="20" onkeydown="if(event.keyCode==13) searchRole()"/>
+        <a href="javascript:searchRole()" class="easyui-linkbutton" iconCls="icon-search" plain="true">搜索</a>
+    </div>
+</div>
 </body>
 </html>

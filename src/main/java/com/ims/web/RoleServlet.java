@@ -1,6 +1,7 @@
 package com.ims.web;
 
 import com.ims.dao.RoleDao;
+import com.ims.dao.UserDao;
 import com.ims.model.PageBean;
 import com.ims.model.Role;
 import com.ims.util.DbUtil;
@@ -28,6 +29,7 @@ public class RoleServlet extends HttpServlet {
 
     DbUtil dbUtil = new DbUtil();
     RoleDao roleDao = new RoleDao();
+    UserDao userDao = new UserDao();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -44,6 +46,8 @@ public class RoleServlet extends HttpServlet {
             comBoList(request, response);
         } else if ("list".equals(action)) {
             roleList(request, response);
+        } else if ("delete".equals(action)) {
+            roleDelete(request, response);
         }
     }
 
@@ -94,6 +98,43 @@ public class RoleServlet extends HttpServlet {
             int total = roleDao.roleCount(con, role);
             result.put("rows", jsonArray);
             result.put("total", total);
+            ResponseUtil.write(response, result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                dbUtil.closeCon(con);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void roleDelete(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String delIds = request.getParameter("delIds");
+        Connection con = null;
+        try {
+            con = dbUtil.getCon();
+            JSONObject result = new JSONObject();
+            String str[] = delIds.split(",");
+            for (int i = 0; i < str.length; i++) {
+                boolean f = userDao.existUserWithRoleId(con, str[i]);
+                if (f) {
+                    result.put("errorIndex", i);
+                    result.put("errorMsg", "角色下面有用户，不能删除！");
+                    ResponseUtil.write(response, result);
+                    return;
+                }
+            }
+            int delNums = roleDao.roleDelete(con, delIds);
+            if (delNums > 0) {
+                result.put("success", true);
+                result.put("delNums", delNums);
+            } else {
+                result.put("errorMsg", "删除失败");
+            }
             ResponseUtil.write(response, result);
         } catch (Exception e) {
             e.printStackTrace();
