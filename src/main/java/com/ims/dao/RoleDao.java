@@ -81,4 +81,30 @@ public class RoleDao {
         PreparedStatement pstmt = con.prepareStatement(sql);
         return pstmt.executeUpdate();
     }
+
+    public int roleAdd(Connection con, Role role) throws Exception {
+        String sql = "insert into t_role values(null,?,'',?)";
+        PreparedStatement pstmt = con.prepareStatement(sql);
+        pstmt.setString(1, role.getRoleName());
+        pstmt.setString(2, role.getRoleDescription());
+        return pstmt.executeUpdate();
+    }
+
+    public int roleUpdate(Connection con, Role role) throws Exception {
+        String sql = "update t_role set roleName=?,roleDescription=? where roleId=?";
+        PreparedStatement pstmt = con.prepareStatement(sql);
+        pstmt.setString(1, role.getRoleName());
+        pstmt.setString(2, role.getRoleDescription());
+        pstmt.setInt(3, role.getRoleId());
+        return pstmt.executeUpdate();
+    }
+
+    public int roleAuthIdsUpdate(Connection con, Role role) throws Exception {
+        String sql = "update t_role set authIds=? where roleId=?";
+        PreparedStatement pstmt = con.prepareStatement(sql);
+        pstmt.setString(1, role.getAuthIds());
+        pstmt.setInt(2, role.getRoleId());
+        return pstmt.executeUpdate();
+    }
+
 }

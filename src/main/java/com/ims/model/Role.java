@@ -8,6 +8,18 @@ public class Role {
     private String authStrs;
     private String roleDescription;
 
+    public Role() {
+    }
+
+    public Role(String roleName, String roleDescription) {
+        this.roleName = roleName;
+        this.roleDescription = roleDescription;
+    }
+
+    public Role(int roleId, String authIds) {
+        this.roleId = roleId;
+        this.authIds = authIds;
+    }
 
     public int getRoleId() {
         return roleId;
@@ -48,6 +60,7 @@ public class Role {
     public void setRoleDescription(String roleDescription) {
         this.roleDescription = roleDescription;
     }
+
 
 
 }

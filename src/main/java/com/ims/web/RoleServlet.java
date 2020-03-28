@@ -48,6 +48,10 @@ public class RoleServlet extends HttpServlet {
             roleList(request, response);
         } else if ("delete".equals(action)) {
             roleDelete(request, response);
+        } else if ("save".equals(action)) {
+            roleSave(request, response);
+        } else if ("auth".equals(action)) {
+            auth(request, response);
         }
     }
 
@@ -148,4 +152,69 @@ public class RoleServlet extends HttpServlet {
         }
     }
 
+    private void roleSave(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String roleName = request.getParameter("roleName");
+        String roleDescription = request.getParameter("roleDescription");
+        String roleId = request.getParameter("roleId");
+        Role role = new Role(roleName, roleDescription);
+        if (StringUtil.isNotEmpty(roleId)) {
+            role.setRoleId(Integer.parseInt(roleId));
+        }
+        Connection con = null;
+        try {
+            JSONObject result = new JSONObject();
+            con = dbUtil.getCon();
+            int saveNums = 0;
+            if (StringUtil.isNotEmpty(roleId)) {
+                saveNums = roleDao.roleUpdate(con, role);
+            } else {
+                saveNums = roleDao.roleAdd(con, role);
+            }
+            if (saveNums > 0) {
+                result.put("success", true);
+            } else {
+                result.put("success", true);
+                result.put("errorMsg", "±£´æÊ§°Ü");
+            }
+            ResponseUtil.write(response, result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                dbUtil.closeCon(con);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void auth(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String roleId = request.getParameter("roleId");
+        String authIds = request.getParameter("authIds");
+        Role role = new Role(Integer.parseInt(roleId), authIds);
+        Connection con = null;
+        try {
+            JSONObject result = new JSONObject();
+            con = dbUtil.getCon();
+            int updateNums = roleDao.roleAuthIdsUpdate(con, role);
+            if (updateNums > 0) {
+                result.put("success", true);
+            } else {
+                result.put("errorMsg", "ÊÚÈ¨Ê§°Ü");
+            }
+            ResponseUtil.write(response, result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                dbUtil.closeCon(con);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
 }

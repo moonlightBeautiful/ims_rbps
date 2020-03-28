@@ -17,54 +17,77 @@ import com.ims.util.ResponseUtil;
 import net.sf.json.JSONArray;
 
 
+public class AuthServlet extends HttpServlet {
 
-public class AuthServlet extends HttpServlet{
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
-	DbUtil dbUtil=new DbUtil();
-	AuthDao authDao=new AuthDao();
-	RoleDao roleDao=new RoleDao();
-	
-	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		this.doPost(request, response);
-	}
+    DbUtil dbUtil = new DbUtil();
+    AuthDao authDao = new AuthDao();
+    RoleDao roleDao = new RoleDao();
 
-	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		request.setCharacterEncoding("utf-8");
-		String action=request.getParameter("action");
-		if("menu".equals(action)){
-			this.menuAction(request, response);
-		}
-	}
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        this.doPost(request, response);
+    }
 
-	private void menuAction(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		String parentId=request.getParameter("parentId");
-		Connection con=null;
-		try{
-			con=dbUtil.getCon();
-			HttpSession session=request.getSession();
-			User currentUser=(User)session.getAttribute("currentUser");
-			String authIds=roleDao.getAuthIdsById(con, currentUser.getRoleId());
-			JSONArray jsonArray=authDao.getAuthsByParentId(con, parentId,authIds);
-			ResponseUtil.write(response, jsonArray);
-		}catch(Exception e){
-			e.printStackTrace();
-		}finally{
-			try {
-				dbUtil.closeCon(con);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.setCharacterEncoding("utf-8");
+        String action = request.getParameter("action");
+        if ("menu".equals(action)) {
+            this.menuAction(request, response);
+        } else if ("authMenu".equals(action)) {
+            this.authMenuAction(request, response);
+        }
+    }
+
+    private void menuAction(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String parentId = request.getParameter("parentId");
+        Connection con = null;
+        try {
+            con = dbUtil.getCon();
+            HttpSession session = request.getSession();
+            User currentUser = (User) session.getAttribute("currentUser");
+            String authIds = roleDao.getAuthIdsById(con, currentUser.getRoleId());
+            JSONArray jsonArray = authDao.getAuthsByParentId(con, parentId, authIds);
+            ResponseUtil.write(response, jsonArray);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                dbUtil.closeCon(con);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void authMenuAction(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String parentId = request.getParameter("parentId");
+        String roleId = request.getParameter("roleId");
+        Connection con = null;
+        try {
+            con = dbUtil.getCon();
+            String authIds = roleDao.getAuthIdsById(con, Integer.parseInt(roleId));
+            JSONArray jsonArray = authDao.getCheckedAuthsByParentId(con, parentId, authIds);
+            ResponseUtil.write(response, jsonArray);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                dbUtil.closeCon(con);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
 }
