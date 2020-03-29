@@ -11,7 +11,7 @@
 
 学习到：
     1.验证码
-    2.easyui树菜单 
+    2.easyui树菜单  叶子节点 open 非叶子节点 closed也行 open也行
     3.主页面请求过滤
     4.超链接执行js方法 href="javascript:searchUser()"
     5.input text的回车事件 onkeydown="if(event.keyCode==13) searchUser()"
@@ -19,4 +19,3 @@
     7.添加修改等需要弹出框用 easyui-dialog，在里面写form等
     8.disabled 不会传后台 readonly 传后台
     9.递归学习：方法A，获取子。方法B，调用A和B。
-    10.
