@@ -42,8 +42,10 @@
             <li class="topE"></li>
             <li class="middle_A"></li>
             <li class="middle_B"></li>
-            <li class="middle_C"><span class="btn"> <img alt="" src="images/login/btnlogin.gif" onclick="javascript:document.getElementById('form1').submit()"/> </span>&nbsp;&nbsp;<span><font
-                    color="red">${error }</font></span></li>
+            <li class="middle_C">
+                <span class="btn"> <img alt="" src="images/login/btnlogin.gif" onclick="javascript:document.getElementById('form1').submit()"/> </span>&nbsp;&nbsp;
+                <span><font color="red">${error }</font></span>
+            </li>
             <li class="middle_D"></li>
             <li class="bottom_A"></li>
             <li class="bottom_B">Java知识分享网 www.java1234.com</li>

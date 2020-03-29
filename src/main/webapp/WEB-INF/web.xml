@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
             http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          id="WebApp_ID" version="2.5">
-    <display-name>Rbps</display-name>
+    <display-name>ims_rbps</display-name>
     <welcome-file-list>
         <welcome-file>login.jsp</welcome-file>
     </welcome-file-list>
