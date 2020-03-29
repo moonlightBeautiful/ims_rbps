@@ -190,4 +190,22 @@ public class AuthDao {
         return pstmt.executeUpdate();
     }
 
+    public int authDelete(Connection con, String authId) throws Exception {
+        String sql = "delete from t_auth where authId=?";
+        PreparedStatement pstmt = con.prepareStatement(sql);
+        pstmt.setString(1, authId);
+        return pstmt.executeUpdate();
+    }
+
+    public int getAuthCountByParentId(Connection con, String parentId) throws Exception {
+        String sql = "select count(*) as total from t_auth where parentId=?";
+        PreparedStatement pstmt = con.prepareStatement(sql);
+        pstmt.setString(1, parentId);
+        ResultSet rs = pstmt.executeQuery();
+        if (rs.next()) {
+            return rs.getInt("total");
+        } else {
+            return 0;
+        }
+    }
 }

@@ -51,6 +51,8 @@ public class AuthServlet extends HttpServlet {
             this.authTreeGridMenuAction(request, response);
         } else if ("save".equals(action)) {
             this.saveAction(request, response);
+        } else if ("delete".equals(action)) {
+            this.deleteAction(request, response);
         }
     }
 
@@ -161,6 +163,55 @@ public class AuthServlet extends HttpServlet {
             ResponseUtil.write(response, result);
         } catch (Exception e) {
             if (isLeaf) {
+                try {
+                    con.rollback();
+                } catch (SQLException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+        } finally {
+            try {
+                dbUtil.closeCon(con);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void deleteAction(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String authId = request.getParameter("authId");
+        String parentId = request.getParameter("parentId");
+        Connection con = null;
+        int sonNum = -1;
+        try {
+            con = dbUtil.getCon();
+            JSONObject result = new JSONObject();
+            if (!authDao.isLeaf(con, authId)) {
+                result.put("errorMsg", "该菜单节点有子节点，不能删除！");
+            } else {
+                int delNums = 0;
+                sonNum = authDao.getAuthCountByParentId(con, parentId);
+                if (sonNum == 1) {
+                    con.setAutoCommit(false);
+                    authDao.updateStateByAuthId(con, "open", parentId);
+                    delNums = authDao.authDelete(con, authId);
+                    con.commit();
+                } else {
+                    delNums = authDao.authDelete(con, authId);
+                }
+                if (delNums > 0) {
+                    result.put("success", true);
+                } else {
+                    result.put("errorMsg", "删除失败");
+                }
+            }
+            ResponseUtil.write(response, result);
+        } catch (Exception e) {
+            if (sonNum == 1) {
                 try {
                     con.rollback();
                 } catch (SQLException e1) {
